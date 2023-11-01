@@ -1,0 +1,12 @@
+{
+	"compilerOptions": {
+		"baseUrl": "./",
+		"checkJs": false,
+		"module": "NodeNext",
+		"target": "ESNext",
+		"noImplicitAny": false,
+		"moduleResolution": "NodeNext"
+	},
+	"include": [ "./", "src/**/*" ],
+	"exclude": [ "node_modules", "**/node_modules/*" ]
+}
