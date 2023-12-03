@@ -1,6 +1,6 @@
 {
   "name": "esbuild-library",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "author": "D1g1talEntr0py",
   "license": "ISC",
   "description": "Creates script files for both ES modules and global variables. No CommonJS here!",
@@ -25,7 +25,7 @@
   },
   "packageManager": "pnpm@8.10.2+sha256.487609e857f1c11780cc98dd0bfe4c8a8b11c7f23bc3a4493ac7d263d6fb6c8c",
   "dependencies": {
-    "esbuild-plugin-swc-minify": "^1.0.3"
+    "esbuild-plugin-swc-minify": "^1.0.4"
   },
   "peerDependencies": {
     "esbuild": "^0.19.0"

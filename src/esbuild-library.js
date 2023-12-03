@@ -7,7 +7,7 @@ import { cwd } from 'node:process';
 import moduleTransformer from './esbuild-plugin-module-transformer.js';
 
 const { exports: { '.': entryPoint = './src', outFile = basename(entryPoint) } = {} } = JSON.parse(await readFile(new URL(`${cwd()}/package.json`, import.meta.url), 'utf-8'));
-const defaults = { entryPoints: [ entryPoint ], outDir: 'dist', outFile, ecma: 2022, iife: false, logLevel: 'info' };
+const defaults = { entryPoints: [entryPoint], outDir: 'dist', outFile, ecma: 2022, iife: false, logLevel: 'info' };
 
 /**
  * @typedef {object} ESBuildLibraryOptions
@@ -56,17 +56,9 @@ export default class ESBuildLibrary {
 			}
 		}
 
-		const moduleOutput = `${outDir}/${outFile}`;
-		const esModuleOptions = { entryPoints, bundle: true, format: 'esm', logLevel };
-		const minifyOptions = [{ entryPoints: [ entryPoints.length > 1 ? `./${outDir}/*` : moduleOutput ], module: true, outDir } ];
+		const minifyOptions = [{ entryPoints: [`./${outDir}/*`], module: true, outDir }];
 
-		if (entryPoints.length > 1) {
-			esModuleOptions.outdir = outDir;
-		} else {
-			esModuleOptions.outfile = moduleOutput;
-		}
-
-		await esbuild.build(esModuleOptions);
+		await esbuild.build({ entryPoints, outdir: outDir, bundle: true, format: 'esm', logLevel });
 
 		if (iife) {
 			const iifeOutDir = `${outDir}/iife`;
@@ -74,13 +66,13 @@ export default class ESBuildLibrary {
 
 			await mkdir(iifeOutDir);
 
-			await esbuild.build({ entryPoints: [ moduleOutput ], write: false, outfile: iifeOutput,	logLevel, plugins: [ moduleTransformer() ]	});
+			await esbuild.build({ entryPoints: [ `${outDir}/${outFile}` ], write: false, outfile: iifeOutput, logLevel, plugins: [ moduleTransformer() ] });
 
 			minifyOptions.push({ entryPoints: [ iifeOutput ], outDir: iifeOutDir });
 		}
 
 		for (const { entryPoints, module, outDir: outdir, outExtension } of minifyOptions) {
-			await esbuild.build({ entryPoints, minify: true, sourcemap: true, outdir, outExtension: { '.js': '.min.js' },	logLevel, plugins: [ swcMinify({ ecma, module }) ]	});
+			await esbuild.build({ entryPoints, minify: true, sourcemap: true, outdir, outExtension: { '.js': '.min.js' }, logLevel, plugins: [ swcMinify({ ecma, module }) ] });
 		}
 	}
 
