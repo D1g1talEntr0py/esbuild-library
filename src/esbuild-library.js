@@ -10,7 +10,7 @@ const { exports: { '.': entryPoint = './src', outFile = basename(entryPoint) } =
 const defaults = { entryPoints: [entryPoint], outDir: 'dist', outFile, ecma: 2022, iife: false, logLevel: 'info' };
 
 /**
- * @typedef {object} ESBuildLibraryOptions
+ * @typedef {Object} ESBuildLibraryOptions
  * @property {string[]} [entryPoints=['./src']] The entry points
  * @property {string} [outFile] The output file
  * @property {string} [outDir='dist'] The output directory
@@ -71,7 +71,7 @@ export default class ESBuildLibrary {
 			minifyOptions.push({ entryPoints: [ iifeOutput ], outDir: iifeOutDir });
 		}
 
-		for (const { entryPoints, module, outDir: outdir, outExtension } of minifyOptions) {
+		for (const { entryPoints, module, outDir: outdir } of minifyOptions) {
 			await esbuild.build({ entryPoints, minify: true, sourcemap: true, outdir, outExtension: { '.js': '.min.js' }, logLevel, plugins: [ swcMinify({ ecma, module }) ] });
 		}
 	}
