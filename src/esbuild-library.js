@@ -7,7 +7,7 @@ import { cwd } from 'node:process';
 import moduleTransformer from './esbuild-plugin-module-transformer.js';
 
 const { exports: { '.': entryPoint = './src', outFile = basename(entryPoint) } = {} } = JSON.parse(await readFile(new URL(`${cwd()}/package.json`, import.meta.url), 'utf-8'));
-const defaults = { entryPoints: [entryPoint], outDir: 'dist', outFile, ecma: 2022, iife: false, logLevel: 'info' };
+const defaults = { entryPoints: [ entryPoint ], outDir: 'dist', outFile, ecma: 2022, iife: false, loader: {}, assetNames: '', logLevel: 'info' };
 
 /**
  * @typedef {Object} ESBuildLibraryOptions
@@ -16,6 +16,8 @@ const defaults = { entryPoints: [entryPoint], outDir: 'dist', outFile, ecma: 202
  * @property {string} [outDir='dist'] The output directory
  * @property {number} [ecma=2016] The ecma version
  * @property {boolean} [iife=false] Whether to build an iife version with a global variable
+ * @property {Object} [loader={}] Changes how a given input file is interpreted for a specific file extension
+ * @property {string} [assetNames=''] Controls the file names of the additional output files generated when the loader is set to file
  * @property {string} [logLevel='info'] The log level
  * @see https://esbuild.github.io/api/#log-levels
  * @see https://esbuild.github.io/api/#build-api
@@ -43,10 +45,21 @@ export default class ESBuildLibrary {
 	 * @param {string} [esBuildLibraryOptions.outDir] The output directory
 	 * @param {number} [esBuildLibraryOptions.ecma] The ecma version
 	 * @param {boolean} [esBuildLibraryOptions.iife] Whether to build an iife version
+	 * @param {Object} [esBuildLibraryOptions.loader] Changes how a given input file is interpreted for a specific file extension
+	 * @param {string} [esBuildLibraryOptions.assetNames] Controls the file names of the additional output files generated when the loader is set to file
 	 * @param {string} [esBuildLibraryOptions.logLevel] The log level
 	 * @returns {Promise<void>}
 	 */
-	static async build({ entryPoints = defaults.entryPoints, outDir = defaults.outDir, outFile = defaults.outFile, ecma = defaults.ecma, iife = defaults.iife, logLevel = defaults.logLevel } = {}) {
+	static async build({
+		entryPoints = defaults.entryPoints,
+		outDir = defaults.outDir,
+		outFile = defaults.outFile,
+		ecma = defaults.ecma,
+		iife = defaults.iife,
+		loader = defaults.loader,
+		assetNames = defaults.assetNames,
+		logLevel = defaults.logLevel
+	} = {}) {
 		if (!entryPoints.length) { throw new Error('No entry points provided') }
 
 		// If any of the entry points are directories, replace them with the files in the directory
@@ -56,9 +69,9 @@ export default class ESBuildLibrary {
 			}
 		}
 
-		const minifyOptions = [{ entryPoints: [`./${outDir}/*`], module: true, outDir }];
+		const minifyOptions = [ { entryPoints: [ `./${outDir}/*` ], module: true, outDir } ];
 
-		await esbuild.build({ entryPoints, outdir: outDir, bundle: true, format: 'esm', logLevel });
+		await esbuild.build({ entryPoints, outdir: outDir, bundle: true, format: 'esm', logLevel, loader, assetNames });
 
 		if (iife) {
 			const iifeOutDir = `${outDir}/iife`;
@@ -72,7 +85,7 @@ export default class ESBuildLibrary {
 		}
 
 		for (const { entryPoints, module, outDir: outdir } of minifyOptions) {
-			await esbuild.build({ entryPoints, minify: true, sourcemap: true, outdir, outExtension: { '.js': '.min.js' }, logLevel, plugins: [ swcMinify({ ecma, module }) ] });
+			await esbuild.build({ entryPoints, minify: true, sourcemap: true, outdir, outExtension: { '.js': '.min.js' }, logLevel, loader, assetNames, plugins: [ swcMinify({ ecma, module }) ] });
 		}
 	}
 
@@ -85,13 +98,15 @@ export default class ESBuildLibrary {
 	 * @param {string} [esBuildLibraryOptions.outDir] The output directory
 	 * @param {number} [esBuildLibraryOptions.ecma] The ecma version
 	 * @param {boolean} [esBuildLibraryOptions.iife] Whether to build an iife version
+	 * @param {Object} [esBuildLibraryOptions.loader] Changes how a given input file is interpreted for a specific file extension
+	 * @param {string} [esBuildLibraryOptions.assetNames] Controls the file names of the additional output files generated when the loader is set to file
 	 * @param {string} [esBuildLibraryOptions.logLevel] The log level
 	 * @returns {Promise<void>}
 	 * @see ESBuildLibrary.clean
 	 * @see ESBuildLibrary.build
 	 */
-	static async cleanAndBuild({ entryPoints, outFile, outDir, ecma, iife, logLevel }) {
+	static async cleanAndBuild({ entryPoints, outFile, outDir, ecma, iife, logLevel, loader, assetNames } = {}) {
 		await ESBuildLibrary.clean(outDir);
-		await ESBuildLibrary.build({ entryPoints, outFile, outDir, ecma, iife, logLevel });
+		await ESBuildLibrary.build({ entryPoints, outFile, outDir, ecma, iife, logLevel, loader, assetNames });
 	}
 }
