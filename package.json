@@ -28,7 +28,7 @@
     "esbuild-plugin-swc-minify": "^1.0.10"
   },
   "devDependencies": {
-    "eslint": "^8.57.0",
+    "eslint": "^9.26.0",
     "eslint-plugin-jsdoc": "^48.2.1"
   },
   "peerDependencies": {
