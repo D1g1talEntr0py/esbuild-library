@@ -1,7 +1,7 @@
 {
   "name": "esbuild-library",
   "author": "D1g1talEntr0py",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "license": "ISC",
   "description": "Creates script files for both ES modules and global variables. No CommonJS here!",
   "homepage": "https://github.com/D1g1talEntr0py/esbuild-library#readme",
