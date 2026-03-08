@@ -50,7 +50,7 @@
     "@swc/cli": "^0.8.0",
     "@swc/core": "^1.15.18",
     "@types/node": "^25.3.5",
-    "esbuild": "^0.27.3",
+    "esbuild": "^0.25.0",
     "esbuild-plugin-swc-minify": "^2.1.2"
   },
   "devDependencies": {
