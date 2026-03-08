@@ -1,9 +1,10 @@
 {
   "name": "esbuild-library",
-  "version": "1.0.8",
   "author": "D1g1talEntr0py",
+	"version": "2.0.0",
   "license": "ISC",
   "description": "Creates script files for both ES modules and global variables. No CommonJS here!",
+	"homepage": "https://github.com/D1g1talEntr0py/esbuild-library#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/D1g1talEntr0py/esbuild-library.git"
@@ -11,28 +12,56 @@
   "bugs": {
     "url": "https://github.com/D1g1talEntr0py/esbuild-library/issues"
   },
-  "homepage": "https://github.com/D1g1talEntr0py/esbuild-library#readme",
-  "type": "module",
-  "exports": "./src/esbuild-library.js",
-  "files": [
-    "src/"
+  "maintainers": [
+    {
+      "name": "D1g1talEntr0py",
+      "email": "jason.dimeo@gmail.com"
+    }
   ],
+  "engines": {
+    "node": ">=22.0.0"
+  },
+	"packageManager": "pnpm@10.31.0",
   "publishConfig": {
+    "registry": "https://registry.npmjs.org",
     "access": "public"
   },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/esbuild-library.d.ts",
+      "import": "./dist/esbuild-library.js"
+    }
   },
-  "packageManager": "pnpm@8.13.0+sha256.fbcf256db6d06bc189e31df34b3ed61220f3ba9f78a2ca8fe7be0fce4670dbd3",
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+		"prepare": "git config core.hooksPath .githooks",
+    "build": "tsbuild",
+		"build:watch": "tsbuild --watch",
+    "type-check": "tsbuild --noEmit",
+    "lint": "eslint ./src",
+		"prepublishOnly": "pnpm lint && pnpm build"
+  },
   "dependencies": {
-    "esbuild-plugin-swc-minify": "^1.0.10"
+    "@swc/cli": "^0.8.0",
+    "@swc/core": "^1.15.18",
+    "@types/node": "^25.3.5",
+    "esbuild": "^0.27.3",
+    "esbuild-plugin-swc-minify": "^2.1.2"
   },
   "devDependencies": {
-    "eslint": "^8.57.0",
-    "eslint-plugin-jsdoc": "^48.2.1"
-  },
-  "peerDependencies": {
-    "esbuild": "^0.20.0"
+    "@d1g1tal/tsbuild": "1.5.0",
+    "@eslint/js": "^10.0.1",
+    "@typescript-eslint/eslint-plugin": "^8.56.1",
+    "@typescript-eslint/parser": "^8.56.1",
+    "eslint": "^10.0.3",
+    "eslint-plugin-jsdoc": "^62.7.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.56.1"
   },
   "keywords": [
     "esbuild",
