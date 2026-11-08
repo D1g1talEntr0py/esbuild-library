@@ -36,6 +36,10 @@ pnpm add -D esbuild-library
 npm i -D esbuild-library
 ```
 
+## Contributing and releases
+
+Use Conventional Commits and follow the [release process](docs/release-process.md). Releases use git-cliff: features trigger minor releases, fixes/performance improvements/reverts trigger patches, and conventional breaking changes trigger majors. Other commits do not independently trigger releases, but every commit is included in the changelog at the next release.
+
 ## Options
 
 ```js
