@@ -3,7 +3,6 @@ import { defineConfig } from 'eslint/config';
 import jsdoc from 'eslint-plugin-jsdoc';
 import tsEslint from 'typescript-eslint';
 import tsParser from '@typescript-eslint/parser';
-import typeScriptEslint from '@typescript-eslint/eslint-plugin';
 
 export default defineConfig({ ignores: [ 'node_modules/**', 'tests/**', 'dist/**', '*.config.[tj]s' ] }, {
 	extends: [
