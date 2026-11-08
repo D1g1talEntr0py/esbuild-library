@@ -5,12 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.12](https://github.com/D1g1talEntr0py/esbuild-library/compare/v1.0.11...v1.0.12) - 2026-11-08
+
+
+### Bug Fixes
+
+* **ci:** update Node.js version matrix to remove 22 ([2049f5e](https://github.com/D1g1talEntr0py/esbuild-library/commit/2049f5e75050b45bd852a45b54fb071d6b0f8100))
+
+
+
 ## [1.0.11](https://github.com/D1g1talEntr0py/esbuild-library/compare/v1.0.10...v1.0.11) - 2026-11-08
 
 
 ### Bug Fixes
 
 * **ci:** update Node.js engine requirement to >=24.11.1 ([02ed3ca](https://github.com/D1g1talEntr0py/esbuild-library/commit/02ed3cad058eec0da0c458b6af8d70edea4cd99e))
+
+
+### Chores
+
+* **release:** 1.0.11 [skip ci] ([eb4fbd3](https://github.com/D1g1talEntr0py/esbuild-library/commit/eb4fbd386e7a773b6bbc74bf928ae89c1bf1a7c3))
 
 
 
