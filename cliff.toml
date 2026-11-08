@@ -1,0 +1,56 @@
+[changelog]
+header = """# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+"""
+body = """
+{% if version %}
+## [{{ version | trim_start_matches(pat="v") }}]({{ self::remote_url() }}{% if previous.version %}/compare/{{ previous.version }}...{{ version }}{% else %}/releases/tag/{{ version }}{% endif %}) - {{ timestamp | date(format="%Y-%m-%d") }}
+{% else %}
+## [Unreleased]
+{% endif %}
+{% for group, commits in commits | group_by(attribute="group") %}
+### {{ group | striptags }}
+{% for commit in commits %}
+* {% if commit.scope %}**{{ commit.scope }}:** {% endif %}{{ commit.message }} ([{{ commit.id | truncate(length=7, end="") }}]({{ self::remote_url() }}/commit/{{ commit.id }}))
+{% endfor %}
+{% endfor %}
+{% macro remote_url() -%}
+https://github.com/{{ remote.github.owner }}/{{ remote.github.repo }}
+{%- endmacro %}
+"""
+trim = true
+
+[git]
+conventional_commits = true
+filter_unconventional = false
+split_commits = false
+filter_commits = false
+tag_pattern = "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
+commit_parsers = [
+  { field = "breaking", pattern = "true", group = "<!-- 00 -->Breaking Changes" },
+  { message = "(?i)^feat(?:\\([^)]*\\))?:", group = "<!-- 01 -->Features" },
+  { message = "(?i)^fix(?:\\([^)]*\\))?:", group = "<!-- 02 -->Bug Fixes" },
+  { message = "(?i)^perf(?:\\([^)]*\\))?:", group = "<!-- 03 -->Performance Improvements" },
+  { message = "(?i)^revert(?:\\([^)]*\\))?:", group = "<!-- 04 -->Reverts" },
+  { message = "(?i)^docs(?:\\([^)]*\\))?:", group = "<!-- 05 -->Documentation" },
+  { message = "(?i)^style(?:\\([^)]*\\))?:", group = "<!-- 06 -->Styles" },
+  { message = "(?i)^chore(?:\\([^)]*\\))?:", group = "<!-- 07 -->Chores" },
+  { message = "(?i)^refactor(?:\\([^)]*\\))?:", group = "<!-- 08 -->Code Refactoring" },
+  { message = "(?i)^test(?:\\([^)]*\\))?:", group = "<!-- 09 -->Tests" },
+  { message = "(?i)^build(?:\\([^)]*\\))?:", group = "<!-- 10 -->Build System" },
+  { message = "(?i)^ci(?:\\([^)]*\\))?:", group = "<!-- 11 -->Continuous Integration" },
+  { message = ".*", group = "<!-- 12 -->Other Changes" },
+]
+sort_commits = "oldest"
+
+[remote]
+offline = true
+
+[bump]
+features_always_bump_minor = true
+breaking_always_bump_major = true
+initial_tag = "v1.0.0"

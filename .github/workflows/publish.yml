@@ -6,26 +6,115 @@ on:
 
 permissions:
   contents: write
-  issues: write
-  pull-requests: write
   id-token: write
+
+concurrency:
+  group: npm-release
+  cancel-in-progress: false
 
 jobs:
   release:
     runs-on: ubuntu-latest
     environment: npm
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
+          fetch-tags: true
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 'lts/*'
           cache: pnpm
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: git-cliff@2.14.2
+      - run: sudo npm install -g npm@latest
       - run: npm config set "//registry.npmjs.org/:_authToken" ""
       - run: pnpm install --frozen-lockfile
-      - run: npx -y -p semantic-release -p @semantic-release/changelog -p @semantic-release/git -p @semantic-release/exec -p conventional-changelog-conventionalcommits semantic-release
+      - name: Determine release version
+        id: release
+        run: |
+          LATEST_TAG=$(git tag --merged HEAD --sort=-version:refname | awk '/^v[0-9]+\.[0-9]+\.[0-9]+$/ { if (!found++) print }')
+          if [[ -n "$LATEST_TAG" ]]; then
+            RANGE="$LATEST_TAG..HEAD"
+          else
+            RANGE=HEAD
+          fi
+          ELIGIBLE=$(node --input-type=module - "$RANGE" <<'NODE'
+          import { execFileSync } from 'node:child_process';
+          const messages = execFileSync('git', ['log', process.argv[2], '--format=%B%x00'], { encoding: 'utf8' });
+          const eligible = messages.split('\0').some(message => {
+            const [subject, ...body] = message.trim().split('\n');
+            const conventional = /^([a-z][a-z0-9_-]*)(?:\([^)\r\n]+\))?(!)?: .+/i.exec(subject);
+            return conventional && (
+              conventional[2] === '!' ||
+              /^(feat|fix|perf|revert)$/i.test(conventional[1]) ||
+              /^BREAKING(?: |-)CHANGE: \S/m.test(body.join('\n'))
+            );
+          });
+          console.log(eligible ? 'true' : 'false');
+          NODE
+          )
+          if [[ "$ELIGIBLE" != true ]]; then
+            echo "No release-worthy commits since the latest release; changelog updates wait for the next release."
+            exit 0
+          fi
+          BUMP_LOG=$(mktemp)
+          trap 'rm -f "$BUMP_LOG"' EXIT
+          if VERSION=$(git cliff --github-repo "$GITHUB_REPOSITORY" --bumped-version 2>"$BUMP_LOG"); then
+            BUMP_STATUS=0
+          else
+            BUMP_STATUS=$?
+          fi
+          cat "$BUMP_LOG" >&2
+          if grep -q "There is nothing to bump" "$BUMP_LOG"; then
+            echo "No version bump required."
+            exit 0
+          fi
+          if [[ "$BUMP_STATUS" -ne 0 ]]; then
+            exit "$BUMP_STATUS"
+          fi
+          VERSION=${VERSION#v}
+          if [[ -z "$VERSION" || "$VERSION" == "${LATEST_TAG#v}" ]]; then
+            echo "No version bump required."
+            exit 0
+          fi
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid git-cliff version: $VERSION" >&2
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+      - name: Prepare and validate package
+        if: steps.release.outputs.version != ''
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          git cliff --github-repo "$GITHUB_REPOSITORY" --tag "v$VERSION" --unreleased --strip header --output "$RUNNER_TEMP/release-notes.md"
+          git cliff --github-repo "$GITHUB_REPOSITORY" --tag "v$VERSION" --output CHANGELOG.md
+          npm version "$VERSION" --no-git-tag-version --ignore-scripts
+          pnpm lint
+          pnpm type-check
+          pnpm -s build
+          pnpm pack
+          tar -tzf "esbuild-library-$VERSION.tgz" | grep -Fx package/dist/esbuild-library.js
+          tar -tzf "esbuild-library-$VERSION.tgz" | grep -Fx package/dist/esbuild-library.d.ts
+      - name: Publish and create release
+        if: steps.release.outputs.version != ''
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_PROVENANCE: 'true'
+        run: |
+          pnpm publish --no-git-checks --provenance --ignore-scripts
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add CHANGELOG.md package.json
+          git commit -m "chore(release): $VERSION [skip ci]"
+          git tag "v$VERSION"
+          git push origin HEAD:main "refs/tags/v$VERSION"
+          gh release create "v$VERSION" --verify-tag --title "v$VERSION" --notes-file "$RUNNER_TEMP/release-notes.md" "esbuild-library-$VERSION.tgz"
