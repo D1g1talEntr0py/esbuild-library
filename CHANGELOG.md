@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.11](https://github.com/D1g1talEntr0py/esbuild-library/compare/v1.0.10...v1.0.11) - 2026-11-08
+
+
+### Bug Fixes
+
+* **ci:** update Node.js engine requirement to >=24.11.1 ([02ed3ca](https://github.com/D1g1talEntr0py/esbuild-library/commit/02ed3cad058eec0da0c458b6af8d70edea4cd99e))
+
+
+
 ## [1.0.10](https://github.com/D1g1talEntr0py/esbuild-library/compare/v1.0.9...v1.0.10) - 2026-11-08
 
 
@@ -25,6 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * **ci:** add Node.js 26 to test matrix ([a63440b](https://github.com/D1g1talEntr0py/esbuild-library/commit/a63440b78095315d39cc8c0f1f9a903cb0673401))
 
 * **ci:** upgrade actions/checkout and setup-node versions in CI workflows ([c891fa1](https://github.com/D1g1talEntr0py/esbuild-library/commit/c891fa1a87d27e1bdd5924dd9bb5b1597db24f78))
+
+* **release:** 1.0.10 [skip ci] ([bf34f52](https://github.com/D1g1talEntr0py/esbuild-library/commit/bf34f52e54d1a49955d3b078d74715ac4f3d733e))
 
 
 ### Build System
