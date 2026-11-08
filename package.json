@@ -55,9 +55,8 @@
   "devDependencies": {
     "@d1g1tal/tsbuild": "3.0.3",
     "@eslint/js": "^10.0.1",
-		"@types/node": "^26.6.6",
+    "@types/node": "^26.6.6",
     "@typescript-eslint/eslint-plugin": "^8.72.1",
-    "@typescript-eslint/parser": "^8.72.1",
     "@typescript/native": "npm:typescript@^7.0.2",
     "eslint": "^10.14.0",
     "eslint-plugin-jsdoc": "^65.4.5",

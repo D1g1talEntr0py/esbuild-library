@@ -1,25 +1,21 @@
 import eslint from '@eslint/js';
 import { defineConfig } from 'eslint/config';
 import jsdoc from 'eslint-plugin-jsdoc';
-import tsEslint from 'typescript-eslint';
-import tsParser from '@typescript-eslint/parser';
+import tslint from 'typescript-eslint';
 
 export default defineConfig({ ignores: [ 'node_modules/**', 'tests/**', 'dist/**', '*.config.[tj]s' ] }, {
 	extends: [
 		eslint.configs.recommended,
 		jsdoc.configs['flat/recommended-typescript'],
-		...tsEslint.configs.recommended,
-		...tsEslint.configs.recommendedTypeChecked
+		...tslint.configs.recommended,
+		...tslint.configs.recommendedTypeChecked
 	],
-	// @ts-expect-error - plugin needs update...
-	plugins: { typeScriptEslint, jsdoc },
+	plugins: { '@typescript-eslint': tslint.plugin, jsdoc },
 	languageOptions: {
+		parser: tslint.parser,
 		parserOptions: {
 			project: true,
-			parser: tsParser,
-			parserOptions: {
-				ecmaFeatures: {	impliedStrict: true	}
-			},
+			ecmaFeatures: {	impliedStrict: true	},
 			tsconfigRootDir: import.meta.dirname,
 			allowAutomaticSingleRunInference: true,
 			warnOnUnsupportedTypeScriptVersion: false
